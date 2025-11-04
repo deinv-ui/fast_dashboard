@@ -1,21 +1,21 @@
 <template>
-  <div class="p-6 flex flex-col min-h-screen relative">
+  <div class="p-6 flex flex-col min-h-screen relative bg-gray-50">
     <!-- Header -->
     <div
       class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
     >
-      <h1 class="text-2xl font-semibold text-gray-800">Stock Dashboard</h1>
+      <h1 class="text-3xl font-bold text-gray-800">Stock Dashboard</h1>
 
       <div class="flex flex-wrap gap-2 w-full sm:w-auto">
         <input
           v-model="symbolInput"
           type="text"
           placeholder="Search stock symbol..."
-          class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-60"
+          class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-60"
         />
         <button
           @click="onSearch"
-          class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-all w-full sm:w-auto"
+          class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition-all w-full sm:w-auto"
         >
           Search
         </button>
@@ -29,26 +29,26 @@
     </div>
 
     <!-- Watchlist -->
-    <div v-if="watchlistStocks.length" class="mb-6">
-      <h2 class="text-lg font-semibold mb-2">Watchlist</h2>
+    <div v-if="watchlistStocks.length" class="mb-8">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">Watchlist</h2>
       <div class="flex gap-4 overflow-x-auto pb-2">
         <div
           v-for="stock in watchlistStocks"
           :key="stock.symbol"
-          class="bg-white border border-gray-200 rounded-xl shadow-sm p-3 flex flex-col items-center text-center min-w-[140px] flex-shrink-0"
+          class="bg-white border border-gray-200 rounded-2xl shadow-md p-4 flex flex-col items-center text-center min-w-[160px] flex-shrink-0 hover:shadow-xl transition-shadow duration-300"
         >
-          <div class="font-bold">{{ stock.symbol }}</div>
+          <div class="font-bold text-lg">{{ stock.symbol }}</div>
           <div
             :class="
               stock.price >= stock.previousClose
                 ? 'text-green-600'
                 : 'text-red-600'
             "
-            class="text-lg font-semibold"
+            class="text-2xl font-semibold mt-1"
           >
             {{ stock.price.toFixed(2) }}
           </div>
-          <div class="w-full relative h-12">
+          <div class="w-full h-16 mt-2">
             <canvas
               :id="'watchlist-' + stock.symbol"
               class="w-full h-full"
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- Loader overlay -->
+    <!-- Loader -->
     <div
       v-if="loading"
       class="absolute inset-0 bg-white/70 flex items-center justify-center z-10 text-gray-600 text-lg font-medium"
@@ -67,55 +67,66 @@
     </div>
 
     <!-- Error -->
-    <div v-if="error && !loading" class="text-red-500 text-center mt-10">
+    <div
+      v-if="error && !loading"
+      class="text-red-500 text-center mt-10 text-lg font-medium"
+    >
       {{ error }}
     </div>
 
     <!-- Stock Grid -->
     <div
       v-if="paginatedStocks.length && !loading"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
       <div
         v-for="stock in paginatedStocks"
         :key="stock.symbol"
-        class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all p-4 flex flex-col items-center text-center"
+        class="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-5 flex flex-col items-center text-center"
       >
-        <div class="text-lg font-bold">{{ stock.symbol }}</div>
-        <div class="text-2xl">{{ stock.price.toFixed(2) }}</div>
-        <div class="text-sm text-gray-600">
-          Open: {{ stock.open.toFixed(2) }} • High:
-          {{ stock.high.toFixed(2) }} • Low: {{ stock.low.toFixed(2) }}
+        <div class="flex items-center justify-between w-full mb-2">
+          <span class="text-lg font-bold text-gray-800">{{
+            stock.symbol
+          }}</span>
+          <span
+            :class="
+              stock.price >= stock.previousClose
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+            class="font-semibold text-lg"
+          >
+            {{ stock.price.toFixed(2) }}
+          </span>
         </div>
-        <div class="text-sm text-gray-500">
+
+        <div class="text-sm text-gray-500 w-full mb-1 flex justify-between">
+          <span>O: {{ stock.open.toFixed(2) }}</span>
+          <span>H: {{ stock.high.toFixed(2) }}</span>
+          <span>L: {{ stock.low.toFixed(2) }}</span>
+        </div>
+        <div class="text-xs text-gray-400 w-full mb-2 text-left">
           Prev Close: {{ stock.previousClose.toFixed(2) }}
-        </div>
-        <div class="text-xs text-gray-400 mb-2">
-          As of {{ stock.timestamp }}
         </div>
 
         <!-- Chart -->
-        <div class="w-full relative h-28">
+        <div class="w-full h-32 mb-3">
           <canvas :id="'chart-' + stock.symbol" class="w-full h-full"></canvas>
         </div>
 
         <!-- Watchlist toggle -->
         <button
           @click="toggleWatchlist(stock.symbol)"
-          class="mt-2 px-3 py-1 text-sm rounded border hover:bg-gray-100"
+          class="px-3 py-1 text-sm rounded-full border border-gray-300 hover:bg-gray-100 transition-colors duration-200"
         >
-          {{
-            watchlist.has(stock.symbol)
-              ? "Remove from Watchlist"
-              : "Add to Watchlist"
-          }}
+          {{ watchlist.has(stock.symbol) ? "Remove" : "Add" }}
         </button>
       </div>
     </div>
 
     <div
       v-else-if="!loading && !error"
-      class="text-gray-500 text-center py-16 italic"
+      class="text-gray-500 text-center py-20 italic text-lg"
     >
       No stocks loaded yet.
     </div>
@@ -123,7 +134,7 @@
     <!-- Pagination -->
     <div
       v-if="totalStockPages > 1"
-      class="flex justify-center items-center gap-2 py-4 mt-8"
+      class="flex justify-center items-center gap-2 py-6"
     >
       <button
         @click="prevPage"
@@ -164,6 +175,9 @@ import { storeToRefs } from "pinia";
 import { useStockStore } from "../stores/stockStore";
 import Chart from "chart.js/auto";
 import type { StockQuote } from "../data/stockApi";
+import { useThemeStore } from "../stores/themeStore";
+const themeStore = useThemeStore();
+const darkMode = themeStore.darkMode;
 
 const stockStore = useStockStore();
 const {
@@ -187,7 +201,6 @@ const symbolInput = ref("");
 const watchlist = ref(new Set<string>());
 const chartInstances = new Map<string, Chart>();
 
-// Computed watchlist stocks
 const watchlistStocks = ref<StockQuote[]>([]);
 watch([() => Array.from(watchlist.value), paginatedStocks], () => {
   watchlistStocks.value = paginatedStocks.value.filter((s) =>
@@ -196,25 +209,21 @@ watch([() => Array.from(watchlist.value), paginatedStocks], () => {
   nextTick().then(renderWatchlistCharts);
 });
 
-// Search
 const onSearch = async () => {
   if (!symbolInput.value.trim()) return;
   await searchAndLoad(symbolInput.value);
 };
 
-// Toggle watchlist
 const toggleWatchlist = (symbol: string) => {
   if (watchlist.value.has(symbol)) watchlist.value.delete(symbol);
   else watchlist.value.add(symbol);
 };
 
-// Load default stocks
 onMounted(() => {
   reloadStocks();
   startAutoRefresh();
 });
 
-// Chart rendering for paginated stocks
 watch(paginatedStocks, async (stocks) => {
   await nextTick();
   stocks.forEach((stock) => renderChart("chart-" + stock.symbol, stock));
@@ -224,7 +233,6 @@ const renderChart = (canvasId: string, stock: any, small = false) => {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
   if (!canvas) return;
 
-  // Set explicit height for Chart.js
   canvas.height = small ? 60 : 120;
 
   if (chartInstances.has(canvasId)) chartInstances.get(canvasId)!.destroy();
@@ -253,22 +261,26 @@ const renderChart = (canvasId: string, stock: any, small = false) => {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false, // keep false
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: false } },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: { color: themeStore.darkMode ? "#e5e7eb" : "#374151" },
+          },
+          x: { ticks: { color: themeStore.darkMode ? "#e5e7eb" : "#374151" } },
+        },
       },
     })
   );
 };
 
-// Render watchlist mini charts
 const renderWatchlistCharts = () => {
   watchlistStocks.value.forEach((stock) =>
     renderChart("watchlist-" + stock.symbol, stock, true)
   );
 };
 
-// Auto-refresh watchlist every 30s
 const startAutoRefresh = () => {
   setInterval(async () => {
     if (watchlist.value.size === 0) return;
