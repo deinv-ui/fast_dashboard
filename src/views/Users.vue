@@ -127,7 +127,7 @@
     <!-- Pagination -->
     <footer
       v-if="totalPages > 1"
-      class="flex justify-center items-center gap-2 py-4 border-t border-gray-200 bg-white sticky bottom-0"
+      class="flex justify-center items-center gap-2 py-4 mt-10 bg-transparent w-full bottom-0"
     >
       <button
         @click="prevPage"

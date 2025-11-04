@@ -19,11 +19,7 @@
           {{ link.name }}
         </RouterLink>
 
-        <!-- Dark Mode -->
-        <button @click="$emit('toggle-dark')" class="ml-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-          <span v-if="!darkMode">🌞</span>
-          <span v-else>🌙</span>
-        </button>
+      
       </div>
 
       <!-- Mobile -->
@@ -45,9 +41,6 @@
       >
         {{ link.name }}
       </RouterLink>
-      <button @click="$emit('toggle-dark')" class="w-full text-left px-6 py-3 flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-        {{ darkMode ? 'Light Mode' : 'Dark Mode' }}
-      </button>
     </div>
   </transition>
 </nav>

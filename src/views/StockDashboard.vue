@@ -130,42 +130,43 @@
     >
       No stocks loaded yet.
     </div>
-
-    <!-- Pagination -->
-    <div
+    <footer
       v-if="totalStockPages > 1"
-      class="flex justify-center items-center gap-2 py-6"
+      class="flex justify-center items-center gap-2 py-4 mt-10 bg-transparent w-full bottom-0"
     >
-      <button
-        @click="prevPage"
-        :disabled="currentPage === 1"
-        class="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
-      >
-        Prev
-      </button>
+      <!-- Pagination -->
+      <div class="flex justify-center items-center gap-2 py-6">
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+        >
+          Prev
+        </button>
 
-      <button
-        v-for="page in totalStockPages"
-        :key="page"
-        @click="goToPage(page)"
-        :class="[
-          'px-3 py-1 border rounded',
-          page === currentPage
-            ? 'bg-blue-600 text-white border-blue-600'
-            : 'hover:bg-gray-100',
-        ]"
-      >
-        {{ page }}
-      </button>
+        <button
+          v-for="page in totalStockPages"
+          :key="page"
+          @click="goToPage(page)"
+          :class="[
+            'px-3 py-1 border rounded',
+            page === currentPage
+              ? 'bg-blue-600 text-white border-blue-600'
+              : 'hover:bg-gray-100',
+          ]"
+        >
+          {{ page }}
+        </button>
 
-      <button
-        @click="nextPage"
-        :disabled="currentPage === totalStockPages"
-        class="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
-      >
-        Next
-      </button>
-    </div>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalStockPages"
+          class="px-3 py-1 border rounded disabled:opacity-50 hover:bg-gray-100"
+        >
+          Next
+        </button>
+      </div>
+    </footer>
   </div>
 </template>
 

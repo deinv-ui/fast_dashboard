@@ -5,16 +5,16 @@ import Users from "../views/Users.vue";
 import Stock from "../views/StockDashboard.vue";
 
 const routes = [
-  {
-    path: "/",
-    name: "Home",
-    component: Home,
-  },
-  {
-    path: "/about",
-    name: "About",
-    component: About,
-  },
+  // {
+  //   path: "/",
+  //   name: "Home",
+  //   component: Home,
+  // },
+  // {
+  //   path: "/about",
+  //   name: "About",
+  //   component: About,
+  // },
   {
     path: "/users",
     name: "Users",
