@@ -13,7 +13,7 @@ export interface User {
 }
 // async function fetchUsers() : Promise<RandomUser[]>
 // this async function will return an array of user object
-export async function fetchUsers(count = 1000): Promise<User[]> {
+export async function fetchUsers(): Promise<User[]> {
     const { data } = await axios.get(`https://randomuser.me/api/?results=1000`);
     return data.results;
 }

@@ -177,17 +177,10 @@ import Chart from "chart.js/auto";
 import type { StockQuote } from "../data/stockApi";
 import { useThemeStore } from "../stores/themeStore";
 const themeStore = useThemeStore();
-const darkMode = themeStore.darkMode;
 
 const stockStore = useStockStore();
-const {
-  paginatedStocks,
-  loading,
-  error,
-  currentPage,
-  totalStockPages,
-  watchlist: storeWatchlist,
-} = storeToRefs(stockStore);
+const { paginatedStocks, loading, error, currentPage, totalStockPages } =
+  storeToRefs(stockStore);
 const {
   nextPage,
   prevPage,

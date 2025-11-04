@@ -66,5 +66,4 @@ const navLinks = [
 const open = ref(false);
 const route = useRoute();
 const isActive = (path:string) => route.path.toLowerCase() === path.toLowerCase();
-const props = defineProps<{darkMode:boolean}>();
 </script>
