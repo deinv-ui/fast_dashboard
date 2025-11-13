@@ -1,21 +1,28 @@
+// stores/userStore.ts
 import { defineStore } from "pinia";
-import { fetchUsers, type User } from "../data/mockUsers";
+
+export interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender?: string;
+  country?: string;
+  avatar?: string;
+}
 
 export const useUserStore = defineStore("user", {
   state: () => ({
-    allUsers: [] as User[],
-    filteredUsers: [] as User[],
-    paginatedUsers: [] as User[],
+    paginatedUsers: [] as User[],    // Users for current page
     loading: false,
     error: null as string | null,
     currentPage: 1,
     pageSize: 8,
     searchQuery: "",
-    totalPages: 0,
+    totalPages: 1,
+    totalUsers: 0,                   // Total users in backend
   }),
   getters: {
-    totalPages: (state) =>
-      Math.ceil(state.filteredUsers.length / state.pageSize) || 1,
     visiblePageNumbers: (state) => {
       const range = 3;
       const start = Math.max(1, state.currentPage - range);
@@ -24,69 +31,49 @@ export const useUserStore = defineStore("user", {
     },
   },
   actions: {
-    async loadUsers() {
+    async loadUsers(page: number = 1, limit: number = 8, search: string = "") {
       this.loading = true;
       this.error = null;
 
       try {
-        const data = await fetchUsers();
-        this.allUsers = data;
-        this.filteredUsers = data;
-        this.paginate();
+        const res = await fetch(
+          `http://localhost:3000/api/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
+        );
+        const json = await res.json();
+
+        this.paginatedUsers = json.data;
+        this.currentPage = json.meta.page;
+        this.totalPages = json.meta.lastPage;
+        this.totalUsers = json.meta.total;
       } catch (err) {
-        this.error = "Failed to load users";
         console.error(err);
+        this.error = "Failed to load users from server";
       } finally {
         this.loading = false;
       }
     },
-    paginate() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      this.paginatedUsers = this.filteredUsers.slice(start, end);
-    },
-    nextPage() {
+
+    async nextPage() {
       if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-        this.paginate();
+        await this.loadUsers(this.currentPage + 1, this.pageSize, this.searchQuery);
       }
     },
-    prevPage() {
+
+    async prevPage() {
       if (this.currentPage > 1) {
-        this.currentPage--;
-        this.paginate();
+        await this.loadUsers(this.currentPage - 1, this.pageSize, this.searchQuery);
       }
     },
-    goToPage(page: number) {
-      this.currentPage = page;
-      this.paginate();
+
+    async goToPage(page: number) {
+      if (page >= 1 && page <= this.totalPages) {
+        await this.loadUsers(page, this.pageSize, this.searchQuery);
+      }
     },
+
     async searchUsers(query: string) {
-      this.loading = true; 
-      this.error = null;
-
-      // Simulate API delay (500ms)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      try {
-        const q = query.trim().toLowerCase();
-        if (!q) {
-          this.filteredUsers = this.allUsers;
-        } else {
-          this.filteredUsers = this.allUsers.filter((user) => {
-            const name = `${user.name.first} ${user.name.last}`.toLowerCase();
-            const email = user.email.toLowerCase();
-            return name.includes(q) || email.includes(q);
-          });
-        }
-
-        this.currentPage = 1;
-        this.paginate();
-      } catch (err) {
-        this.error = "Search failed.";
-      } finally {
-        this.loading = false;
-      }
+      this.searchQuery = query.trim();
+      await this.loadUsers(1, this.pageSize, this.searchQuery);
     },
   },
 });

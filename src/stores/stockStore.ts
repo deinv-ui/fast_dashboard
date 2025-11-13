@@ -8,12 +8,12 @@ export const useStockStore = defineStore("stock", {
   state: () => ({
     allStocks: [] as StockQuote[],
     paginatedStocks: [] as StockQuote[],
-    watchlist: [] as StockQuote[], // auto-refresh watchlist
+    watchlist: [] as StockQuote[],
     loading: false,
     error: null as string | null,
     currentPage: 1,
     pageSize: 6,
-    refreshInterval: 15000, // auto-refresh every 15s
+    refreshInterval: 15000,
     refreshTimer: null as any,
   }),
   getters: {
@@ -46,7 +46,6 @@ export const useStockStore = defineStore("stock", {
         if (index > -1) this.allStocks[index] = quote;
         else this.allStocks.unshift(quote);
 
-        // optionally add to watchlist
         if (!this.watchlist.find(s => s.symbol === quote.symbol)) {
           this.watchlist.unshift(quote);
         }
@@ -114,6 +113,22 @@ export const useStockStore = defineStore("stock", {
         this.updatePagination();
       } catch (err) {
         console.error("Failed to refresh watchlist", err);
+      }
+    },
+
+    // =====================
+    // New method: refresh all stocks for homepage
+    // =====================
+    async refreshStocks() {
+      if (!this.allStocks.length) return;
+      try {
+        const updatedQuotes = await Promise.all(
+          this.allStocks.map(stock => fetchStockQuote(stock.symbol))
+        );
+        this.allStocks = updatedQuotes;
+        this.updatePagination();
+      } catch (err) {
+        console.error("Failed to refresh stocks", err);
       }
     },
 
