@@ -1,66 +1,59 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50">
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-      <div class="px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-end items-center h-16">
-
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-start">
-            <span class="text-2xl font-bold text-gray-800 tracking-tight">waTCH</span>
-          </div>
-
-          <!-- Desktop Links -->
-          <div class="hidden md:flex ml-auto space-x-10 items-right">
-            <RouterLink
-              v-for="link in navLinks"
-              :key="link.name"
-              :to="link.path"
-              class="relative text-gray-700 font-medium transition-colors duration-200 hover:text-blue-600"
-            >
-              <span
-                class="pb-1 relative after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-blue-600 after:transition-all after:duration-300"
-                :class="{ 'after:w-full text-blue-600 font-semibold': isActive(link.path) }"
-              >
-                {{ link.name }}
-              </span>
-            </RouterLink>
-          </div>
-
-          <!-- Mobile Menu Button -->
-          <div class="md:hidden flex items-center">
-            <button
-              @click="open = !open"
-              class="text-gray-700 hover:text-blue-600 focus:outline-none transition-colors duration-200 p-2 rounded-md"
-            >
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
+  <div class="min-h-screen flex bg-gray-900 text-gray-200">
+    <!-- Sidebar -->
+    <aside
+      class="flex-none flex flex-col bg-gray-950 border-r border-gray-800 py-6 px-2 transition-all duration-300"
+      :class="collapsed ? 'w-14' : 'w-64'"
+    >
+      <!-- Logo & toggle -->
+      <div class="flex items-center justify-between mb-10 px-2">
+        <span
+          v-if="!collapsed"
+          class="text-3xl font-semibold tracking-loose text-yellow-400"
+        >
+          Watch
+        </span>
+        <button
+          class="text-gray-400 hover:text-white transition"
+          @click="collapsed = !collapsed"
+        >
+          <component
+            :is="collapsed ? Menu : ArrowLeftToLine"
+            class="w-5 h-5"
+          />
+        </button>
       </div>
 
-      <!-- Mobile Menu -->
-      <transition name="slide-fade">
-        <div v-if="open" class="md:hidden bg-white shadow-lg rounded-b-lg overflow-hidden mt-1">
-          <RouterLink
-            v-for="link in navLinks"
-            :key="link.name"
-            :to="link.path"
-            class="block px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition-colors duration-200"
-            :class="{ 'bg-blue-50 text-blue-700 font-semibold': isActive(link.path) }"
-            @click="open = false"
-          >
-            {{ link.name }}
-          </RouterLink>
-        </div>
-      </transition>
-    </nav>
+      <!-- Menu -->
+      <nav class="flex-1 space-y-1">
+        <RouterLink
+          v-for="link in navLinks"
+          :key="link.name"
+          :to="link.path"
+          class="flex items-center gap-3 px-3 py-3 rounded-lg transition hover:bg-gray-800 hover:text-white"
+          :class="{
+            'bg-gray-800 text-white font-semibold': isActive(link.path),
+          }"
+        >
+          <component :is="link.icon" class="w-5 h-5" />
+          <span v-if="!collapsed">{{ link.name }}</span>
+        </RouterLink>
+      </nav>
 
-    <!-- Page Content -->
-    <main class="flex-1 p-6">
+      <!-- Bottom -->
+      <div class="mt-auto pt-6 border-t border-gray-800">
+        <RouterLink
+          to="/settings"
+          class="flex items-center gap-3 px-3 py-3 rounded-lg transition hover:bg-gray-800"
+        >
+          <Settings class="w-5 h-5" />
+          <span v-if="!collapsed">Settings</span>
+        </RouterLink>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 overflow-y-auto transition-all duration-300">
       <RouterView />
     </main>
   </div>
@@ -69,41 +62,29 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+import {
+  Home,
+  Users,
+  BarChart3,
+  Settings,
+  ArrowLeftToLine,
+  Menu,
+} from "lucide-vue-next";
 
-const open = ref(false);
 const route = useRoute();
+const collapsed = ref(false);
 
 const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "Users", path: "/users" },
-  { name: "Stock", path: "/stock" },
+  { name: "Home", path: "/", icon: Home },
+  { name: "Users", path: "/users", icon: Users },
+  { name: "Stock", path: "/stock", icon: BarChart3 },
 ];
 
-// Active link detection
 const isActive = (path: string) => route.path === path;
 </script>
 
 <style scoped>
-/* Desktop underline animation */
-nav a span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 0;
-  background-color: #2563eb;
-  transition: width 0.3s ease;
+a {
+  transition: background 0.25s ease, color 0.25s ease;
 }
-nav a span:hover::after {
-  width: 100%;
-}
-
-/* Mobile menu transition */
-.slide-fade-enter-active { transition: all 0.3s ease; }
-.slide-fade-leave-active { transition: all 0.2s ease; }
-.slide-fade-enter-from { opacity: 0; transform: translateY(-10px); }
-.slide-fade-enter-to { opacity: 1; transform: translateY(0); }
-.slide-fade-leave-from { opacity: 1; transform: translateY(0); }
-.slide-fade-leave-to { opacity: 0; transform: translateY(-10px); }
 </style>
